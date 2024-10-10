@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-management-deployment
+  labels:
+    app: inventory-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory-management
+  template:
+    metadata:
+      labels:
+        app: inventory-management
+    spec:
+      containers:
+      - name: inventory-management-container
+        image: $CONTAINER_REGISTRY/inventoryimage:$VERSION
+        ports:
+        - containerPort: 8001
+        env:
+        - name: APP_ENV
+          value: "production"
+        - name: DATABASE_URL
+          value: "postgresql://lib_admin:kiqZG9jZw4glxu3N5bA97eZf4XV68Szw@dpg-cs3iv1t6l47c73d8mffg-a.oregon-postgres.render.com/lib_db_1ru1"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-management-service
+spec:
+  selector:
+    app: inventory-management
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 8001
+      targetPort: 8001
+  
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: book-catalog-deployment
+  labels:
+    app: book-catalog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: book-catalog
+  template:
+    metadata:
+      labels:
+        app: book-catalog
+    spec:
+      containers:
+      - name: book-catalog-container
+        image: $CONTAINER_REGISTRY/catalogimage:$VERSION
+        ports:
+        - containerPort: 8000
+        env:
+        - name: APP_ENV
+          value: "production"
+        - name: DATABASE_URL
+          value: "postgresql://lib_admin:kiqZG9jZw4glxu3N5bA97eZf4XV68Szw@dpg-cs3iv1t6l47c73d8mffg-a.oregon-postgres.render.com/lib_db_1ru1"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: book-catalog-service
+spec:
+  selector:
+    app: book-catalog
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+      
+
