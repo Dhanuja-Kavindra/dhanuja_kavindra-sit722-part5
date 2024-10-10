@@ -1,0 +1,44 @@
+# 
+# GitHub Actions workflow.
+#
+
+name: Destroy microservice
+
+on:
+
+  #
+  # Allows deployment to be invoked manually through the GitHub Actions user interface.
+  #
+  workflow_dispatch: 
+
+jobs:
+
+  destroy:
+    runs-on: ubuntu-latest
+    
+    env:
+      VERSION: ${{ github.sha }}
+      CONTAINER_REGISTRY: ${{ secrets.CONTAINER_REGISTRY }}
+      REGISTRY_UN: ${{ secrets.REGISTRY_UN }}
+      REGISTRY_PW: ${{ secrets.REGISTRY_PW  }}
+
+    steps:
+      
+      # Checks-out your repository under $GITHUB_WORKSPACE.
+      - uses: actions/checkout@v3
+
+      #
+      # Installs Kubectl and connects it to the cluster.
+      #
+      # https://github.com/marketplace/actions/kubernetes-cli-kubectl
+      #
+      - uses: tale/kubectl-action@v1
+        with:
+          base64-kube-config: ${{ secrets.KUBE_CONFIG }}
+          kubectl-version: v1.24.2
+      
+      #
+      # Expands the configuration template and deploys the microservice.
+      #
+      - name: Delete
+        run: ./scripts/delete.sh
